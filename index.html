@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolo Netto Artigiano Forfettario | 2025</title>
+    <meta name="description"
+        content="Calcola il tuo reddito netto come artigiano in regime forfettario. Include la nuova riduzione contributiva del 50% per le nuove iscrizioni 2025.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-elements">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <main class="container">
+        <header class="app-header">
+            <h1>Calcolo Netto <span class="highlight">Artigiano</span></h1>
+            <p class="subtitle">Regime Forfettario & Nuove Agevolazioni 2025</p>
+        </header>
+
+        <div class="calculator-card glass-panel">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="gross-income">Fatturato Annuo Lordo (€)</label>
+                    <div class="input-wrapper">
+                        <input type="number" id="gross-income" placeholder="Es. 30000" min="0" step="100">
+                        <span class="currency-icon">€</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="prev-year-inps">Contributi INPS versati (anno prec.)</label>
+                    <small
+                        style="display: block; color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.9rem;">Deducibili
+                        dal reddito imponibile per il calcolo tasse</small>
+                    <div class="input-wrapper">
+                        <input type="number" id="prev-year-inps" placeholder="Es. 4000" min="0" step="10">
+                        <span class="currency-icon">€</span>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="months-select">Mensilità</label>
+                    <div class="input-wrapper">
+                        <select id="months-select"
+                            style="width: 100%; background: rgba(15, 23, 42, 0.5); border: 2px solid var(--border-light); border-radius: 12px; padding: 1rem; color: var(--text-main); font-size: 1.1rem; font-family: var(--font-family); appearance: none; cursor: pointer;">
+                            <option value="12" selected>12 Mensilità</option>
+                            <option value="13">13 Mensilità</option>
+                            <option value="14">14 Mensilità</option>
+                        </select>
+                        <svg style="position: absolute; right: 1.2rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-muted);"
+                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m6 9 6 6 6-6" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Tipologia Agevolazione INPS</label>
+                    <div class="radio-cards">
+                        <label class="radio-card selected">
+                            <input type="radio" name="inps-reduction" value="50" checked>
+                            <div class="radio-content">
+                                <span class="radio-title">Nuova Iscrizione 2025</span>
+                                <span class="radio-desc">Riduzione 50% (Primi 3 anni)</span>
+                                <span class="badge new">Novità</span>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="inps-reduction" value="35">
+                            <div class="radio-content">
+                                <span class="radio-title">Regime Standard</span>
+                                <span class="radio-desc">Riduzione 35% (Richiesta)</span>
+                            </div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="inps-reduction" value="0">
+                            <div class="radio-content">
+                                <span class="radio-title">Nessuna Riduzione</span>
+                                <span class="radio-desc">Aliquota piena</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="input-group toggle-group">
+                    <label for="startup-tax" class="toggle-label">
+                        <span>Startup (Primi 5 anni)</span>
+                        <small>Imposta sostitutiva al 5% invece del 15%</small>
+                    </label>
+                    <label class="switch">
+                        <input type="checkbox" id="startup-tax" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <!-- Advanced Settings Toggle -->
+                <div class="advanced-toggle">
+                    <button type="button" id="toggle-advanced">Impostazioni Avanzate</button>
+                </div>
+
+                <div class="advanced-settings hidden" id="advanced-settings-panel">
+                    <div class="input-group">
+                        <label for="coeff-redditivita">Coefficiente di Redditività (%)</label>
+                        <input type="number" id="coeff-redditivita" value="67" min="1" max="100">
+                        <small>Standard Artigiani: 67%</small>
+                    </div>
+                </div>
+
+                <button id="calculate-btn" class="cta-button">Calcola Netto</button>
+            </div>
+
+            <div class="results-section hidden" id="results-display">
+                <div class="net-income-display">
+                    <span class="label">Reddito Netto Annuo</span>
+                    <span class="value" id="net-in-hand" data-value="0">€ 0,00</span>
+                    <span class="sub-value" id="monthly-detail">Circa <strong>€ 0</strong> al mese (su 12
+                        mensilità)</span>
+                </div>
+
+                <div class="breakdown-grid">
+                    <div class="breakdown-item">
+                        <span class="dot tax"></span>
+                        <span class="label">Imposta Sostitutiva (<span id="tax-rate-display">5%</span>)</span>
+                        <span class="amount" id="tax-amount">€ 0,00</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span class="dot inps"></span>
+                        <span class="label">Contributi INPS (<span id="inps-label-display">-50%</span>)</span>
+                        <span class="amount" id="inps-amount">€ 0,00</span>
+                        <div class="tooltip-icon" title="Include minimale fisso e saldo eccedenza">?</div>
+                    </div>
+                    <div class="breakdown-item info">
+                        <span class="label">Imponibile Lordo</span>
+                        <span class="amount" id="taxable-base">€ 0,00</span>
+                    </div>
+                </div>
+
+                <div class="save-aside-section">
+                    <div class="save-aside-card">
+                        <div class="save-aside-header">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="save-icon">
+                                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                            </svg>
+                            <h3>Quota da Accantonare</h3>
+                        </div>
+                        <p class="save-aside-desc">Per ogni fattura incassata, ti consigliamo di mettere da parte questa percentuale per coprire le tasse e i contributi a fine anno.</p>
+                        <div class="save-aside-values">
+                            <span class="save-percentage" id="save-percentage">0%</span>
+                            <span class="save-amount" id="save-amount-per-1000">Pari a € 0 ogni 1.000€</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="disclaimer">
+            <p><strong>Nota:</strong> I calcoli sono stime basate sulla normativa vigente (Legge di Bilancio 2025). Il
+                calcolo INPS considera l'importo totale di competenza dell'anno. Per situazioni specifiche, consultare
+                sempre un commercialista.</p>
+        </footer>
+    </main>
+    <script src="script.js"></script>
+</body>
+
+</html>
