@@ -20,7 +20,7 @@ Inserito il fatturato annuo lordo, l'app restituisce:
 |---|---|
 | Coefficiente di redditività artigiani | 67% (modificabile) |
 | Minimale reddito INPS | € 18.556 |
-| Contributi fissi INPS | € 4.460,64 |
+| Contributi fissi INPS | € 4.528,00 |
 | Aliquota sull'eccedenza | 24% |
 | Imposta sostitutiva | 5% (primi 5 anni) o 15% |
 | Riduzioni contributive | −50% nuove iscrizioni 2025, −35% ordinaria |

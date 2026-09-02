@@ -23,11 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Constants (2025 Estimates/User Provided)
     // Ref: Updated user values
-    // Full Fixed = 4460.64
+    // Full Fixed = 4528.00 (da commercialista: 566€/trimestre con riduzione 50% -> 2264/anno -> pieno 4528)
     // Minimale reddito 2025: 18.556
 
     const INPS_MINIMAL_INCOME = 18556;
-    const INPS_FIXED_AMOUNT = 4460.64;
+    const INPS_FIXED_AMOUNT = 4528.00;
     const INPS_VARIABLE_RATE = 0.24;
 
     // UI Helpers
