@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInvoice();
 
         if (savePercentageEl && saveAmountPer1000El) {
-            savePercentageEl.textContent = `${savePercentage.toFixed(1)}%`;
+            savePercentageEl.textContent = `${savePercentage.toFixed(1).replace('.', ',')}%`;
             saveAmountPer1000El.textContent = `Pari a ${formatCurrency(amountPer1000)} ogni 1.000€ incassati`;
         }
 
