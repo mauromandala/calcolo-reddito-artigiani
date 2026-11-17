@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
         advancedPanel.classList.toggle('hidden');
     });
 
-    // Per-invoice set-aside: marginal cost of the invoice as the last one of the year,
+    // Per-invoice set-aside (above the INPS minimum): marginal cost of the invoice as the last one of the year,
     // i.e. total due at full revenue minus total due without it (handles the INPS minimum threshold).
     let invoiceCost = () => 0;
     const invoiceInput = document.getElementById('invoice-amount');
@@ -210,7 +210,10 @@ document.addEventListener('DOMContentLoaded', () => {
             </table>
             <small>Stima a regime: presuppone redditi simili all'anno precedente. Le date delle rate fisse INPS cambiano ogni anno (es. 2026: 18 maggio, 20 agosto, 16 novembre, 16 febbraio 2027): verifica il calendario INPS dell'anno.</small>`;
 
-        invoiceCost = (v) => dueAt(grossIncome) - dueAt(Math.max(0, grossIncome - v));
+        // Under the minimum the fixed INPS is owed anyway, so the marginal cost would hide it: use the average rate there.
+        invoiceCost = taxableBase <= INPS_MINIMAL_INCOME
+            ? (v) => v * savePercentage / 100
+            : (v) => dueAt(grossIncome) - dueAt(Math.max(0, grossIncome - v));
         updateInvoice();
 
         if (savePercentageEl && saveAmountPer1000El) {
