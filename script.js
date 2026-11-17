@@ -211,9 +211,16 @@ document.addEventListener('DOMContentLoaded', () => {
             <small>Stima a regime: presuppone redditi simili all'anno precedente. Le date delle rate fisse INPS cambiano ogni anno (es. 2026: 18 maggio, 20 agosto, 16 novembre, 16 febbraio 2027): verifica il calendario INPS dell'anno.</small>`;
 
         // Under the minimum the fixed INPS is owed anyway, so the marginal cost would hide it: use the average rate there.
-        invoiceCost = taxableBase <= INPS_MINIMAL_INCOME
-            ? (v) => v * savePercentage / 100
-            : (v) => dueAt(grossIncome) - dueAt(Math.max(0, grossIncome - v));
+        // Above it, the part of the invoice still under the minimum is priced at the average rate at the minimum
+        // and only the rest at the marginal rate, so the amount has no jump when revenue crosses the threshold.
+        const revenueAtMin = INPS_MINIMAL_INCOME / coeff;
+        const avgAtMin = (inpsFixedDue + dueAt(revenueAtMin)) / revenueAtMin;
+        invoiceCost = (v) => {
+            if (grossIncome <= revenueAtMin) return v * savePercentage / 100;
+            const from = Math.max(0, grossIncome - v);
+            const underMin = Math.min(v, Math.max(0, revenueAtMin - from));
+            return underMin * avgAtMin + dueAt(grossIncome) - dueAt(Math.max(from, revenueAtMin));
+        };
         updateInvoice();
 
         if (savePercentageEl && saveAmountPer1000El) {
