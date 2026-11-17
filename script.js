@@ -47,16 +47,16 @@ document.addEventListener('DOMContentLoaded', () => {
         advancedPanel.classList.toggle('hidden');
     });
 
-    // Per-invoice set-aside: uses the average rate (total taxes / revenue)
-    // shortcut: average rate, not marginal; fine for planning, upgrade if you need exactness near the INPS minimum
-    let savePct = 0;
+    // Per-invoice set-aside: marginal cost of the invoice as the last one of the year,
+    // i.e. total due at full revenue minus total due without it (handles the INPS minimum threshold).
+    let invoiceCost = () => 0;
     const invoiceInput = document.getElementById('invoice-amount');
     const invoiceSaveEl = document.getElementById('invoice-save');
     const updateInvoice = () => {
         const v = parseFloat(invoiceInput.value);
-        invoiceSaveEl.innerHTML = v > 0
-            ? `Su ${formatCurrency(v)} metti da parte <strong>${formatCurrency(v * savePct / 100)}</strong> e ti restano ${formatCurrency(v * (1 - savePct / 100))}`
-            : '';
+        if (!(v > 0)) { invoiceSaveEl.innerHTML = ''; return; }
+        const cost = invoiceCost(v);
+        invoiceSaveEl.innerHTML = `Su ${formatCurrency(v)} metti da parte <strong>${formatCurrency(cost)}</strong> (${(cost / v * 100).toFixed(1)}%) e ti restano ${formatCurrency(v - cost)}`;
     };
     invoiceInput.addEventListener('input', updateInvoice);
 
@@ -180,7 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const savePercentage = grossIncome > 0 ? (totalTaxes / grossIncome) * 100 : 0;
         const amountPer1000 = (savePercentage / 100) * 1000;
 
-        savePct = savePercentage;
+        // INPS fixed part is constant, so it cancels out in the difference
+        const dueAt = (g) => {
+            const base = g * coeff;
+            const inps = Math.max(0, base - INPS_MINIMAL_INCOME) * INPS_VARIABLE_RATE * reductionFactor;
+            return inps + Math.max(0, base - prevYearInps) * taxRate;
+        };
+        invoiceCost = (v) => dueAt(grossIncome) - dueAt(Math.max(0, grossIncome - v));
         updateInvoice();
 
         if (savePercentageEl && saveAmountPer1000El) {
