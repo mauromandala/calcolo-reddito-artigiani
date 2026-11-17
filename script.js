@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const v = parseFloat(invoiceInput.value);
         if (!(v > 0)) { invoiceSaveEl.innerHTML = ''; return; }
         const cost = invoiceCost(v);
-        invoiceSaveEl.innerHTML = `Su ${formatCurrency(v)} metti da parte <strong>${formatCurrency(cost)}</strong> (${(cost / v * 100).toFixed(1)}%) e ti restano ${formatCurrency(v - cost)}`;
+        invoiceSaveEl.innerHTML = `Su ${formatCurrency(v)} metti da parte <strong>${formatCurrency(cost)}</strong> (${(cost / v * 100).toFixed(1).replace('.', ',')}%) e ti restano ${formatCurrency(v - cost)}`;
     };
     invoiceInput.addEventListener('input', updateInvoice);
 
