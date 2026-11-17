@@ -188,6 +188,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         // Deadlines table, steady-state assumption (income similar to last year):
         // fixed INPS in 4 equal instalments; tax 50%/50% (June, Nov); INPS excess 60% June (saldo + 1st acconto), 40% Nov.
+        // Checked vs INPS circ. 38/2025 and 14/2026 and Agenzia Entrate (forfettari: acconto in 2 equal instalments 30/06, 30/11).
+        // Not confirmed on an official page: INPS excess acconti 40%+40% (+20% saldo); AdE single-payment threshold for small acconti.
         // shortcut: ignores weekend shifts, the 31/07 extension (+0.4%) and a different prior-year income; check with your accountant.
         const rows = [
             ['16 febbraio', 'INPS fissi (4ª rata)', inpsFixedDue / 4],
@@ -205,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${formatCurrency(r[2])}</td></tr>`).join('')}
                 <tr class="total"><td colspan="2">Totale anno</td><td>${formatCurrency(inpsTotalDue + taxDue)}</td></tr>
             </table>
-            <small>Stima a regime: presuppone redditi simili all'anno precedente.</small>`;
+            <small>Stima a regime: presuppone redditi simili all'anno precedente. Le date delle rate fisse INPS cambiano ogni anno (es. 2026: 18 maggio, 20 agosto, 16 novembre, 16 febbraio 2027): verifica il calendario INPS dell'anno.</small>`;
 
         invoiceCost = (v) => dueAt(grossIncome) - dueAt(Math.max(0, grossIncome - v));
         updateInvoice();
