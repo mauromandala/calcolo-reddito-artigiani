@@ -602,3 +602,11 @@ input:checked+.slider:before {
     font-size: 1rem;
     margin-top: 0.2rem;
 }
+/* Scadenze */
+.deadlines { margin-top: 1.5rem; }
+.deadlines h3 { margin-bottom: 0.75rem; }
+.deadlines table { width: 100%; border-collapse: collapse; }
+.deadlines td { padding: 0.5rem 0.25rem; border-bottom: 1px solid var(--border-light); }
+.deadlines td:last-child { text-align: right; white-space: nowrap; }
+.deadlines .total td { font-weight: 700; border-bottom: none; }
+.deadlines small { display: block; margin-top: 0.5rem; color: var(--text-muted); }

@@ -186,6 +186,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const inps = Math.max(0, base - INPS_MINIMAL_INCOME) * INPS_VARIABLE_RATE * reductionFactor;
             return inps + Math.max(0, base - prevYearInps) * taxRate;
         };
+        // Deadlines table, steady-state assumption (income similar to last year):
+        // fixed INPS in 4 equal instalments; tax 50%/50% (June, Nov); INPS excess 60% June (saldo + 1st acconto), 40% Nov.
+        // shortcut: ignores weekend shifts, the 31/07 extension (+0.4%) and a different prior-year income; check with your accountant.
+        const rows = [
+            ['16 febbraio', 'INPS fissi (4ª rata)', inpsFixedDue / 4],
+            ['16 maggio', 'INPS fissi (1ª rata)', inpsFixedDue / 4],
+            ['30 giugno', 'Imposta sostitutiva (acconto)', taxDue * 0.5],
+            ['30 giugno', 'INPS eccedenza (saldo + 1º acconto)', inpsVariableDue * 0.6],
+            ['20 agosto', 'INPS fissi (2ª rata)', inpsFixedDue / 4],
+            ['16 novembre', 'INPS fissi (3ª rata)', inpsFixedDue / 4],
+            ['30 novembre', 'Imposta sostitutiva (2º acconto)', taxDue * 0.5],
+            ['30 novembre', 'INPS eccedenza (2º acconto)', inpsVariableDue * 0.4],
+        ].filter(r => r[2] > 0);
+        document.getElementById('deadlines').innerHTML = `
+            <h3>Scadenze e quanto tenere da parte</h3>
+            <table>
+                ${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${formatCurrency(r[2])}</td></tr>`).join('')}
+                <tr class="total"><td colspan="2">Totale anno</td><td>${formatCurrency(inpsTotalDue + taxDue)}</td></tr>
+            </table>
+            <small>Stima a regime: presuppone redditi simili all'anno precedente.</small>`;
+
         invoiceCost = (v) => dueAt(grossIncome) - dueAt(Math.max(0, grossIncome - v));
         updateInvoice();
 
