@@ -97,6 +97,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // INPS reduction, startup toggle and months, saved together
+    const optsKey = `options-${new Date().getFullYear()}`;
+    const monthsSelect = document.getElementById('months-select');
+    try {
+        const o = JSON.parse(localStorage.getItem(optsKey));
+        if (o) {
+            const radio = [...reductionRadios].find(r => r.value === o.reduction);
+            if (radio) { radio.checked = true; radio.dispatchEvent(new Event('change', { bubbles: true })); } // also updates the selected card
+            startupDetailsCheckbox.checked = !!o.startup;
+            monthsSelect.value = o.months;
+        }
+    } catch (e) { /* storage unavailable or corrupt: keep defaults */ }
+    [...reductionRadios, startupDetailsCheckbox, monthsSelect].forEach(el => el.addEventListener('change', () => {
+        try {
+            localStorage.setItem(optsKey, JSON.stringify({
+                reduction: document.querySelector('input[name="inps-reduction"]:checked').value,
+                startup: startupDetailsCheckbox.checked,
+                months: monthsSelect.value,
+            }));
+        } catch (e) { /* ignore */ }
+    }));
+
     // Deadlines table with "già pagato" checkboxes, saved in the browser per calendar year
     const deadlinesEl = document.getElementById('deadlines');
     const paidKey = `paid-${new Date().getFullYear()}`;
