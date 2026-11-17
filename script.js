@@ -56,15 +56,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // Per-invoice set-aside (above the INPS minimum): marginal cost of the invoice as the last one of the year,
     // i.e. total due at full revenue minus total due without it (handles the INPS minimum threshold).
     let invoiceCost = () => 0;
+    let residualPct = null; // share to set aside on future invoices, when "already earned" is filled in
+    let annualGross = 0;
+    let leftToPay = 0;
     const invoiceInput = document.getElementById('invoice-amount');
     const invoiceSaveEl = document.getElementById('invoice-save');
     const updateInvoice = () => {
         const v = parseFloat(invoiceInput.value);
         if (!(v > 0)) { invoiceSaveEl.innerHTML = ''; return; }
-        const cost = invoiceCost(v);
+        const cost = residualPct !== null ? v * residualPct : invoiceCost(v);
         invoiceSaveEl.innerHTML = `Su ${formatCurrency(v)} metti da parte <strong>${formatCurrency(cost)}</strong> (${(cost / v * 100).toFixed(1).replace('.', ',')}%) e ti restano ${formatCurrency(v - cost)}`;
     };
     invoiceInput.addEventListener('input', updateInvoice);
+
+    // Future invoices: still-to-pay / revenue still to come
+    const earnedInput = document.getElementById('earned-so-far');
+    const residualEl = document.getElementById('residual-pct');
+    const updateResidual = () => {
+        const earned = parseFloat(earnedInput.value);
+        residualPct = null;
+        residualEl.innerHTML = '';
+        if (earned > 0 && annualGross > 0) {
+            const remaining = annualGross - earned;
+            if (remaining > 0) {
+                residualPct = leftToPay / remaining;
+                residualEl.innerHTML = `Sulle fatture future (${formatCurrency(remaining)} ancora da incassare) metti da parte <strong>${(residualPct * 100).toFixed(1).replace('.', ',')}%</strong>: ${formatCurrency(leftToPay)} ancora da versare`;
+            } else {
+                residualEl.textContent = 'Hai già incassato tutto il fatturato annuo indicato: nessuna fattura futura da considerare.';
+            }
+        }
+        updateInvoice();
+    };
+    earnedInput.addEventListener('input', updateResidual);
 
     // Deadlines table with "già pagato" checkboxes, saved in the browser per calendar year
     const deadlinesEl = document.getElementById('deadlines');
@@ -76,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const keyOf = (r) => r[0] + ' ' + r[1];
         const total = deadlineRows.reduce((sum, r) => sum + r[2], 0);
         const left = deadlineRows.reduce((sum, r) => sum + (paid.has(keyOf(r)) ? 0 : r[2]), 0);
+        leftToPay = left;
         deadlinesEl.innerHTML = `
             <h3>Scadenze e quanto tenere da parte</h3>
             <table>
@@ -85,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tr class="total"><td colspan="3">Ancora da versare</td><td>${formatCurrency(left)}</td></tr>
             </table>
             <small>Stima a regime: presuppone redditi simili all'anno precedente. Le date delle rate fisse INPS cambiano ogni anno (es. 2026: 18 maggio, 20 agosto, 16 novembre, 16 febbraio 2027): verifica il calendario INPS dell'anno.</small>`;
+        updateResidual();
     };
     deadlinesEl.addEventListener('change', (e) => {
         const key = e.target.dataset.key;
@@ -231,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ['30 novembre', 'INPS eccedenza (2º acconto)', inpsVariableDue * 0.4],
         ].filter(r => r[2] > 0);
         deadlineRows = rows;
+        annualGross = grossIncome;
         paintDeadlines();
 
         // Under the minimum the fixed INPS is owed anyway, so the marginal cost would hide it: use the average rate there.
