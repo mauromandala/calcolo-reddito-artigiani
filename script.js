@@ -88,6 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
         updateInvoice();
     };
     earnedInput.addEventListener('input', updateResidual);
+    // Remembered in the browser per calendar year, like the "già pagato" ticks
+    const earnedKey = `earned-${new Date().getFullYear()}`;
+    try { earnedInput.value = localStorage.getItem(earnedKey) || ''; } catch (e) { /* storage unavailable */ }
+    earnedInput.addEventListener('input', () => {
+        try { localStorage.setItem(earnedKey, earnedInput.value); } catch (e) { /* ignore */ }
+    });
 
     // Deadlines table with "già pagato" checkboxes, saved in the browser per calendar year
     const deadlinesEl = document.getElementById('deadlines');
