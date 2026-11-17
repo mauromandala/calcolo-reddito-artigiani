@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Outputs
     const netIncomeEl = document.getElementById('net-in-hand');
-    const monthlyNetEl = document.getElementById('monthly-net');
     const taxAmountEl = document.getElementById('tax-amount');
     const inpsAmountEl = document.getElementById('inps-amount');
     const taxableBaseEl = document.getElementById('taxable-base');
@@ -47,6 +46,19 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleAdvancedBtn.addEventListener('click', () => {
         advancedPanel.classList.toggle('hidden');
     });
+
+    // Per-invoice set-aside: uses the average rate (total taxes / revenue)
+    // shortcut: average rate, not marginal; fine for planning, upgrade if you need exactness near the INPS minimum
+    let savePct = 0;
+    const invoiceInput = document.getElementById('invoice-amount');
+    const invoiceSaveEl = document.getElementById('invoice-save');
+    const updateInvoice = () => {
+        const v = parseFloat(invoiceInput.value);
+        invoiceSaveEl.innerHTML = v > 0
+            ? `Su ${formatCurrency(v)} metti da parte <strong>${formatCurrency(v * savePct / 100)}</strong> e ti restano ${formatCurrency(v * (1 - savePct / 100))}`
+            : '';
+    };
+    invoiceInput.addEventListener('input', updateInvoice);
 
     // Calculation Logic
     const calculate = () => {
@@ -167,6 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalTaxes = inpsTotalDue + taxDue;
         const savePercentage = grossIncome > 0 ? (totalTaxes / grossIncome) * 100 : 0;
         const amountPer1000 = (savePercentage / 100) * 1000;
+
+        savePct = savePercentage;
+        updateInvoice();
 
         if (savePercentageEl && saveAmountPer1000El) {
             savePercentageEl.textContent = `${savePercentage.toFixed(1)}%`;
