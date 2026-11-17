@@ -89,9 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     earnedInput.addEventListener('input', updateResidual);
     // Inputs remembered in the browser per calendar year, like the "già pagato" ticks
-    [[earnedInput, 'earned'], [grossIncomeInput, 'gross'], [prevYearInpsInput, 'prev-inps']].forEach(([el, name]) => {
+    [[earnedInput, 'earned'], [grossIncomeInput, 'gross'], [prevYearInpsInput, 'prev-inps'], [coeffInput, 'coeff'], [invoiceInput, 'invoice']].forEach(([el, name]) => {
         const key = `${name}-${new Date().getFullYear()}`;
-        try { el.value = localStorage.getItem(key) || ''; } catch (e) { /* storage unavailable */ }
+        // keep the HTML default (e.g. coefficient 67) when nothing is saved
+        try { const saved = localStorage.getItem(key); if (saved !== null) el.value = saved; } catch (e) { /* storage unavailable */ }
         el.addEventListener('input', () => {
             try { localStorage.setItem(key, el.value); } catch (e) { /* ignore */ }
         });
