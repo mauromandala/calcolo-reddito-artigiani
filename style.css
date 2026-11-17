@@ -610,3 +610,6 @@ input:checked+.slider:before {
 .deadlines td:last-child { text-align: right; white-space: nowrap; }
 .deadlines .total td { font-weight: 700; border-bottom: none; }
 .deadlines small { display: block; margin-top: 0.5rem; color: var(--text-muted); }
+.deadlines th { text-align: left; font-weight: 500; color: var(--text-muted); padding: 0.25rem; }
+.deadlines td:first-child { width: 1%; }
+.deadlines tr.paid td:not(:first-child) { text-decoration: line-through; opacity: 0.55; }

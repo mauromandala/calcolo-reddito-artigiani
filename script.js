@@ -66,6 +66,34 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     invoiceInput.addEventListener('input', updateInvoice);
 
+    // Deadlines table with "già pagato" checkboxes, saved in the browser per calendar year
+    const deadlinesEl = document.getElementById('deadlines');
+    const paidKey = `paid-${new Date().getFullYear()}`;
+    let paid = new Set();
+    try { paid = new Set(JSON.parse(localStorage.getItem(paidKey)) || []); } catch (e) { /* storage unavailable: ticks last until reload */ }
+    let deadlineRows = [];
+    const paintDeadlines = () => {
+        const keyOf = (r) => r[0] + ' ' + r[1];
+        const total = deadlineRows.reduce((sum, r) => sum + r[2], 0);
+        const left = deadlineRows.reduce((sum, r) => sum + (paid.has(keyOf(r)) ? 0 : r[2]), 0);
+        deadlinesEl.innerHTML = `
+            <h3>Scadenze e quanto tenere da parte</h3>
+            <table>
+                <tr><th>Pagato</th><th>Scadenza</th><th>Cosa</th><th>Importo</th></tr>
+                ${deadlineRows.map(r => `<tr class="${paid.has(keyOf(r)) ? 'paid' : ''}"><td><input type="checkbox" data-key="${keyOf(r)}" aria-label="Già pagato: ${keyOf(r)}" ${paid.has(keyOf(r)) ? 'checked' : ''}></td><td>${r[0]}</td><td>${r[1]}</td><td>${formatCurrency(r[2])}</td></tr>`).join('')}
+                <tr class="total"><td colspan="3">Totale anno</td><td>${formatCurrency(total)}</td></tr>
+                <tr class="total"><td colspan="3">Ancora da versare</td><td>${formatCurrency(left)}</td></tr>
+            </table>
+            <small>Stima a regime: presuppone redditi simili all'anno precedente. Le date delle rate fisse INPS cambiano ogni anno (es. 2026: 18 maggio, 20 agosto, 16 novembre, 16 febbraio 2027): verifica il calendario INPS dell'anno.</small>`;
+    };
+    deadlinesEl.addEventListener('change', (e) => {
+        const key = e.target.dataset.key;
+        if (!key) return;
+        if (e.target.checked) paid.add(key); else paid.delete(key);
+        try { localStorage.setItem(paidKey, JSON.stringify([...paid])); } catch (err) { /* ignore */ }
+        paintDeadlines();
+    });
+
     // Calculation Logic
     const calculate = () => {
         const grossIncome = parseFloat(grossIncomeInput.value);
@@ -202,13 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
             ['30 novembre', 'Imposta sostitutiva (2º acconto)', taxDue * 0.5],
             ['30 novembre', 'INPS eccedenza (2º acconto)', inpsVariableDue * 0.4],
         ].filter(r => r[2] > 0);
-        document.getElementById('deadlines').innerHTML = `
-            <h3>Scadenze e quanto tenere da parte</h3>
-            <table>
-                ${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${formatCurrency(r[2])}</td></tr>`).join('')}
-                <tr class="total"><td colspan="2">Totale anno</td><td>${formatCurrency(inpsTotalDue + taxDue)}</td></tr>
-            </table>
-            <small>Stima a regime: presuppone redditi simili all'anno precedente. Le date delle rate fisse INPS cambiano ogni anno (es. 2026: 18 maggio, 20 agosto, 16 novembre, 16 febbraio 2027): verifica il calendario INPS dell'anno.</small>`;
+        deadlineRows = rows;
+        paintDeadlines();
 
         // Under the minimum the fixed INPS is owed anyway, so the marginal cost would hide it: use the average rate there.
         // Above it, the part of the invoice still under the minimum is priced at the average rate at the minimum
