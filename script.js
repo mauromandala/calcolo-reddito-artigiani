@@ -20,14 +20,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const savePercentageEl = document.getElementById('save-percentage');
     const saveAmountPer1000El = document.getElementById('save-amount-per-1000');
 
-    // Constants (2025 Estimates/User Provided)
+    // Constants 2026 (INPS circ. 14/2026; fisso dal cassetto previdenziale dell'utente)
     // Ref: Updated user values
     // Full Fixed = 4528.00 (da commercialista: 566€/trimestre con riduzione 50% -> 2264/anno -> pieno 4528)
-    // Minimale reddito 2025: 18.556
+    // Minimale reddito 2026: 18.808; aliquota 24% fino a 56.224, 25% oltre (artigiani)
 
-    const INPS_MINIMAL_INCOME = 18556;
+    const INPS_MINIMAL_INCOME = 18808;
+    const INPS_BRACKET = 56224;
     const INPS_FIXED_AMOUNT = 4528.00;
     const INPS_VARIABLE_RATE = 0.24;
+    const INPS_VARIABLE_RATE_HIGH = 0.25;
+    // contributo sull'eccedenza del minimale, prima della riduzione
+    const inpsVariable = (base) =>
+        Math.max(0, Math.min(base, INPS_BRACKET) - INPS_MINIMAL_INCOME) * INPS_VARIABLE_RATE +
+        Math.max(0, base - INPS_BRACKET) * INPS_VARIABLE_RATE_HIGH;
 
     // UI Helpers
     const formatCurrency = (val) => {
@@ -75,12 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Determine INPS
         // Logic: Calculate Fixed and Variable separately to show breakdown
         let inpsFixedFull = INPS_FIXED_AMOUNT;
-        let inpsVariableFull = 0;
-
-        if (taxableBase > INPS_MINIMAL_INCOME) {
-            const excess = taxableBase - INPS_MINIMAL_INCOME;
-            inpsVariableFull = excess * INPS_VARIABLE_RATE;
-        }
+        const inpsVariableFull = inpsVariable(taxableBase);
 
         // Apply Reduction
         const selectedReduction = document.querySelector('input[name="inps-reduction"]:checked').value;
@@ -183,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // INPS fixed part is constant, so it cancels out in the difference
         const dueAt = (g) => {
             const base = g * coeff;
-            const inps = Math.max(0, base - INPS_MINIMAL_INCOME) * INPS_VARIABLE_RATE * reductionFactor;
+            const inps = inpsVariable(base) * reductionFactor;
             return inps + Math.max(0, base - prevYearInps) * taxRate;
         };
         // Deadlines table, steady-state assumption (income similar to last year):

@@ -1,6 +1,6 @@
-# Calcolo Netto Artigiano — Regime Forfettario 2025
+# Calcolo Netto Artigiano — Regime Forfettario 2026
 
-Calcolatore web del reddito netto per **artigiani in regime forfettario**, aggiornato ai parametri 2025 e alla riduzione contributiva del 50% per le nuove iscrizioni (Legge di Bilancio 2025).
+Calcolatore web del reddito netto per **artigiani in regime forfettario**, aggiornato ai parametri INPS 2026 e alla riduzione contributiva del 50% per le nuove iscrizioni.
 
 👉 **[Apri il calcolatore](https://mauromandala.github.io/calcolo-reddito-artigiani/)**
 
@@ -16,19 +16,19 @@ Inserito il fatturato annuo lordo, l'app restituisce:
 
 ## Parametri e logica
 
-| Voce | Valore 2025 |
+| Voce | Valore 2026 |
 |---|---|
 | Coefficiente di redditività artigiani | 67% (modificabile) |
-| Minimale reddito INPS | € 18.556 |
+| Minimale reddito INPS | € 18.808 |
 | Contributi fissi INPS | € 4.528,00 |
-| Aliquota sull'eccedenza | 24% |
+| Aliquota sull'eccedenza | 24% fino a € 56.224, 25% oltre |
 | Imposta sostitutiva | 5% (primi 5 anni) o 15% |
 | Riduzioni contributive | −50% nuove iscrizioni 2025, −35% ordinaria |
 
 Il calcolo segue questi passaggi:
 
 1. **Imponibile** = fatturato × coefficiente di redditività
-2. **INPS** = quota fissa + 24% sulla parte di imponibile eccedente il minimale, il tutto ridotto secondo l'agevolazione scelta
+2. **INPS** = quota fissa + 24% (25% oltre € 56.224) sulla parte di imponibile eccedente il minimale, il tutto ridotto secondo l'agevolazione scelta
 3. **Imposta** = (imponibile − contributi INPS *versati* l'anno precedente) × aliquota
 4. **Netto** = fatturato − INPS dovuti − imposta
 
